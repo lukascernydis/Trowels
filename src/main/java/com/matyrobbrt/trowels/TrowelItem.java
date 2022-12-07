@@ -1,12 +1,16 @@
 package com.matyrobbrt.trowels;
 
+import com.matyrobbrt.trowels.upgrade.TrowelUpgrade;
+import com.matyrobbrt.trowels.util.DelegatedCollection;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -28,11 +32,14 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
+// TODO - breaking with the trowel should be an upgrade
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class TrowelItem extends Item {
@@ -51,6 +58,14 @@ public class TrowelItem extends Item {
 
     public boolean canDestroyPlacedBlock() {
         return true;
+    }
+
+    public boolean acceptsUpgrades() {
+        return true;
+    }
+
+    public boolean acceptsUpgrade(ItemStack stack, TrowelUpgrade upgrade) {
+        return acceptsUpgrades();
     }
 
     @Override
@@ -108,6 +123,7 @@ public class TrowelItem extends Item {
         final int count = target.getCount();
 
         final InteractionResult result = placeBlock(roll, target, context);
+        getUpgrades(trowel).forEach(upgrade -> upgrade.afterPlace(trowel, context, roll, target));
 
         if (player.getAbilities().instabuild) target.setCount(count);
 
@@ -129,6 +145,25 @@ public class TrowelItem extends Item {
         return result;
     }
 
+    public Collection<TrowelUpgrade> getUpgrades(ItemStack stack) {
+        final CompoundTag tag = stack.getOrCreateTag();
+        final ListTag upgradesTag = tag.contains("Upgrades") ? tag.getList("Upgrades", Tag.TAG_STRING) : Util.make(new ListTag(), it -> tag.put("Upgrades", it));
+        final EnumSet<TrowelUpgrade> upgrades = EnumSet.noneOf(TrowelUpgrade.class);
+        upgradesTag.forEach(it -> upgrades.add(TrowelUpgrade.valueOf(it.getAsString())));
+        return new DelegatedCollection<>(upgrades) {
+            @Override
+            public boolean add(TrowelUpgrade trowelUpgrade) {
+                if (!acceptsUpgrade(stack, trowelUpgrade)) return false;
+
+                final boolean flag = super.add(trowelUpgrade);
+                if (flag) {
+                    upgradesTag.add(StringTag.valueOf(trowelUpgrade.name()));
+                }
+                return flag;
+            }
+        };
+    }
+
     private InteractionResult placeBlock(int rolledSlot, ItemStack rolledStack, UseOnContext context) {
         final Player player = context.getPlayer();
         @SuppressWarnings("DataFlowIssue") final ItemStack toRestore = player.getItemInHand(context.getHand());
@@ -148,9 +183,16 @@ public class TrowelItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stacks, @Nullable Level level, List<Component> components, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         components.add(Component.translatable("desc.trowels.trowel").withStyle(ChatFormatting.AQUA));
         components.add(Component.translatable("desc.trowels.trowel.destroy_recent").withStyle(ChatFormatting.GOLD));
+
+        final var upgrades = getUpgrades(stack);
+        if (!upgrades.isEmpty()) {
+            components.add(Component.literal(" "));
+            components.add(Component.translatable("tooltip.trowels.upgrades"));
+            upgrades.forEach(up -> components.add(up.getName()));
+        }
     }
 
     @Override

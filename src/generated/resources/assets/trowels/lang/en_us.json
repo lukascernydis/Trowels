@@ -1,5 +1,9 @@
 {
   "desc.trowels.trowel": "When right-clicked, the trowel will place a random item from your hotbar.",
   "desc.trowels.trowel.destroy_recent": "When clicking a block that has been recently (last 5 blocks) placed by the trowel, you can mine it with it.",
-  "item.trowels.trowel": "Trowel"
+  "item.trowels.refill_upgrade": "Refill Upgrade",
+  "item.trowels.trowel": "Trowel",
+  "tooltip.trowels.upgrades": "Upgrades:",
+  "trowel_upgrade.refill": "Refill Upgrade",
+  "trowel_upgrade.refill.desc": "Combine with a Trowel in an anvil in order to make it refill the slot of the used block after placement, from your inventory."
 }

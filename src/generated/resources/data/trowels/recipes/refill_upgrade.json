@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "pattern": [
+    "H",
+    "I",
+    "S"
+  ],
+  "result": {
+    "item": "trowels:refill_upgrade"
+  }
+}

@@ -5,6 +5,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.Tags;
@@ -43,6 +44,8 @@ public class TrowelsDatagen {
                     .parent(itemParent)
                     .texture("layer0", new ResourceLocation("trowels", "item/trowel_base"))
                     .texture("layer1", new ResourceLocation("trowels", "item/trowel_handle"));
+
+            basicItem(Trowels.REFILL_UPGRADE.get());
         }
     }
 
@@ -62,6 +65,16 @@ public class TrowelsDatagen {
                     .define('S', Tags.Items.RODS_WOODEN)
                     .unlockedBy("has_iron", has(Tags.Items.INGOTS_IRON))
                     .save(cons);
+
+            ShapedRecipeBuilder.shaped(Trowels.REFILL_UPGRADE.get())
+                    .pattern("H")
+                    .pattern("I")
+                    .pattern("S")
+                    .define('H', Items.HOPPER)
+                    .define('I', Tags.Items.INGOTS_IRON)
+                    .define('S', Tags.Items.RODS_WOODEN)
+                    .unlockedBy("has_iron", has(Tags.Items.INGOTS_IRON))
+                    .save(cons);
         }
     }
 
@@ -76,6 +89,12 @@ public class TrowelsDatagen {
             add(Trowels.TROWEL.get(), "Trowel");
             add("desc.trowels.trowel", "When right-clicked, the trowel will place a random item from your hotbar.");
             add("desc.trowels.trowel.destroy_recent", "When clicking a block that has been recently (last 5 blocks) placed by the trowel, you can mine it with it.");
+
+            add(Trowels.REFILL_UPGRADE.get(), "Refill Upgrade");
+            add("trowel_upgrade.refill", "Refill Upgrade");
+            add("trowel_upgrade.refill.desc", "Combine with a Trowel in an anvil in order to make it refill the slot of the used block after placement, from your inventory.");
+
+            add("tooltip.trowels.upgrades", "Upgrades:");
         }
     }
 }
