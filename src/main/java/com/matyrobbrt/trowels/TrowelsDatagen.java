@@ -1,7 +1,9 @@
 package com.matyrobbrt.trowels;
 
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +29,7 @@ public class TrowelsDatagen {
         gen.addProvider(event.includeClient(), new Lang(gen));
         gen.addProvider(event.includeClient(), new ItemModels(gen, efh));
 
-        gen.addProvider(event.includeServer(), new Recipes(gen));
+        gen.addProvider(event.includeServer(), new Recipes(gen.getPackOutput()));
     }
 
     private static final class ItemModels extends ItemModelProvider {
@@ -51,13 +53,13 @@ public class TrowelsDatagen {
 
     private static final class Recipes extends RecipeProvider {
 
-        public Recipes(DataGenerator gen) {
+        public Recipes(PackOutput gen) {
             super(gen);
         }
 
         @Override
-        protected void buildCraftingRecipes(Consumer<FinishedRecipe> cons) {
-            ShapedRecipeBuilder.shaped(Trowels.TROWEL.get())
+        protected void buildRecipes(Consumer<FinishedRecipe> cons) {
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Trowels.TROWEL.get())
                     .pattern("  I")
                     .pattern(" I ")
                     .pattern("S  ")
@@ -66,7 +68,7 @@ public class TrowelsDatagen {
                     .unlockedBy("has_iron", has(Tags.Items.INGOTS_IRON))
                     .save(cons);
 
-            ShapedRecipeBuilder.shaped(Trowels.REFILL_UPGRADE.get())
+            ShapedRecipeBuilder.shaped(RecipeCategory.MISC, Trowels.REFILL_UPGRADE.get())
                     .pattern("H")
                     .pattern("I")
                     .pattern("S")
@@ -95,6 +97,8 @@ public class TrowelsDatagen {
             add("trowel_upgrade.refill.desc", "Combine with a Trowel in an anvil in order to make it refill the slot of the used block after placement, from your inventory.");
 
             add("tooltip.trowels.upgrades", "Upgrades:");
+
+            add("creative_tab.trowels", "Trowels");
         }
     }
 }

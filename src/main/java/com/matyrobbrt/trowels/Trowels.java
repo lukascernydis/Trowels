@@ -2,12 +2,14 @@ package com.matyrobbrt.trowels;
 
 import com.matyrobbrt.trowels.upgrade.TrowelUpgrade;
 import com.matyrobbrt.trowels.upgrade.UpgradeItem;
-import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -18,6 +20,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.List;
+
 @Mod(Trowels.MOD_ID)
 public class Trowels {
     public static final String MOD_ID = "trowels";
@@ -25,12 +29,10 @@ public class Trowels {
 
     public static final RegistryObject<Item> TROWEL = ITEMS.register("trowel", () -> new TrowelItem(new Item.Properties()
             .defaultDurability(Config.TROWEL_DURABILITY.getDefault())
-            .tab(CreativeModeTab.TAB_TOOLS)
             .rarity(Rarity.UNCOMMON),
             Config.TROWEL_DURABILITY::get, Config.TROWEL_USES_DURABILITY::get));
 
-    public static final RegistryObject<Item> REFILL_UPGRADE = ITEMS.register("refill_upgrade", () -> new UpgradeItem(new Item.Properties()
-            .tab(CreativeModeTab.TAB_MISC), TrowelUpgrade.REFILL));
+    public static final RegistryObject<Item> REFILL_UPGRADE = ITEMS.register("refill_upgrade", () -> new UpgradeItem(new Item.Properties(), TrowelUpgrade.REFILL));
 
     public Trowels() {
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -44,6 +46,16 @@ public class Trowels {
 
         MinecraftForge.EVENT_BUS.addListener(TrowelItem::onDestroySpeed);
         MinecraftForge.EVENT_BUS.addListener(this::handleAnvilUpdate);
+
+        modEventBus.addListener((final CreativeModeTabEvent.Register event) -> {
+            event.registerCreativeModeTab(new ResourceLocation(MOD_ID, MOD_ID), tab -> tab
+                    .title(Component.translatable("creative_tab.trowels"))
+                    .displayItems((flags, output, isOp) -> output
+                            .acceptAll(List.of(
+                                    TROWEL.get().getDefaultInstance(),
+                                    REFILL_UPGRADE.get().getDefaultInstance()
+                            ))));
+        });
     }
 
     private void handleAnvilUpdate(final AnvilUpdateEvent event) {
