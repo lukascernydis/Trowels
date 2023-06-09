@@ -90,7 +90,7 @@ public class TrowelItem extends Item {
 
             event.getPosition().ifPresentOrElse(pos -> {
                 final ListTag clickedPoses = useItem.getOrCreateTag().getList("PlacedBlockPos", Tag.TAG_COMPOUND);
-                final CompoundTag nbtPos = serializePos(pos, event.getEntity().getLevel());
+                final CompoundTag nbtPos = serializePos(pos, event.getEntity().level());
                 if (clickedPoses.contains(nbtPos)) {
                     event.setNewSpeed(18f);
                 } else {

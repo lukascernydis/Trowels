@@ -16,5 +16,6 @@
   ],
   "result": {
     "item": "trowels:trowel"
-  }
+  },
+  "show_notification": true
 }

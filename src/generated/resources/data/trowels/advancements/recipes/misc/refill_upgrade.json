@@ -28,5 +28,6 @@
     "recipes": [
       "trowels:refill_upgrade"
     ]
-  }
+  },
+  "sends_telemetry_event": false
 }

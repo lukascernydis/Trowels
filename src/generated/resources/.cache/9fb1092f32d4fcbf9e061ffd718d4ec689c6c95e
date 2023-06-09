@@ -1,5 +1,5 @@
-// 1.19.3	2022-12-08T15:58:59.265173	Recipes
-ea1748bdc3ef0c4ea89216429feaa97359fbda8b data/trowels/advancements/recipes/misc/refill_upgrade.json
-4d8c753da4936b3e5a3ed48eaadf7c452a917eab data/trowels/advancements/recipes/tools/trowel.json
-48c9ec68ca06a10e344ad85203ab8c2efb7a98a6 data/trowels/recipes/refill_upgrade.json
-2e48ae04fbf8f26bca6ea428d0bf0b878babfaf9 data/trowels/recipes/trowel.json
+// 1.20	2023-06-09T18:12:51.8203065	Recipes
+b62a96cd7ef2cae3e2dcd34ee4a90042291584cc data/trowels/advancements/recipes/misc/refill_upgrade.json
+6ffa1e46cc4dc5beec1218a335f0b148b8b775f1 data/trowels/advancements/recipes/tools/trowel.json
+82683da898507c8ab6a547e2e7ea6ba3aae9de39 data/trowels/recipes/refill_upgrade.json
+33dcb56fc472470a3dee6751a4c43e9825269db2 data/trowels/recipes/trowel.json

@@ -19,5 +19,6 @@
   ],
   "result": {
     "item": "trowels:refill_upgrade"
-  }
+  },
+  "show_notification": true
 }

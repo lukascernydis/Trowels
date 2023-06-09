@@ -35,7 +35,7 @@ public class TrowelsDatagen {
     private static final class ItemModels extends ItemModelProvider {
 
         public ItemModels(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-            super(generator, Trowels.MOD_ID, existingFileHelper);
+            super(generator.getPackOutput(), Trowels.MOD_ID, existingFileHelper);
         }
 
         @Override
@@ -83,7 +83,7 @@ public class TrowelsDatagen {
     private static final class Lang extends LanguageProvider {
 
         public Lang(DataGenerator gen) {
-            super(gen, Trowels.MOD_ID, "en_us");
+            super(gen.getPackOutput(), Trowels.MOD_ID, "en_us");
         }
 
         @Override
