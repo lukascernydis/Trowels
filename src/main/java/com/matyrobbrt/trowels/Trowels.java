@@ -38,6 +38,7 @@ public class Trowels {
     public Trowels() {
         TABS.register(MOD_ID, () -> CreativeModeTab.builder()
                 .title(Component.translatable("creative_tab.trowels"))
+                .icon(() -> new ItemStack(TROWEL.get()))
                 .displayItems((params, output) -> output
                         .acceptAll(List.of(
                                 TROWEL.get().getDefaultInstance(),

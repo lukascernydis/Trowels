@@ -17,6 +17,9 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @ParametersAreNonnullByDefault
@@ -26,10 +29,56 @@ public class TrowelsDatagen {
         final DataGenerator gen = event.getGenerator();
         final ExistingFileHelper efh = event.getExistingFileHelper();
 
-        gen.addProvider(event.includeClient(), new Lang(gen));
+        gen.addProvider(event.includeClient(), new Lang(gen, "en_us", BuildEnglishLocale()));
+        gen.addProvider(event.includeClient(), new Lang(gen, "ru_ru", BuildRussianLocale()));
+
         gen.addProvider(event.includeClient(), new ItemModels(gen, efh));
 
         gen.addProvider(event.includeServer(), new Recipes(gen.getPackOutput()));
+    }
+
+    private static Map<String, String> BuildEnglishLocale() {
+        Map<String, String> map = new HashMap<>();
+
+        map.put("item.trowels." + Trowels.TROWEL.get(), "Trowel");
+        map.put("desc.trowels.trowel", "When right-clicked, the trowel will place a random item from your hotbar.");
+        map.put("desc.trowels.trowel.destroy_recent",
+                "When clicking a block that has been recently (last 5 blocks) placed by the trowel, " +
+                        "you can mine it with it.");
+
+        map.put("item.trowels." + Trowels.REFILL_UPGRADE.get(), "Refill Upgrade");
+        map.put("trowel_upgrade.refill", "Refill Upgrade");
+        map.put("trowel_upgrade.refill.desc",
+                "Combine with a Trowel in an anvil in order to make it refill " +
+                        "the slot of the used block after placement, from your inventory.");
+
+        map.put("tooltip.trowels.upgrades", "Upgrades:");
+
+        map.put("creative_tab.trowels", "Trowels");
+
+        return map;
+    }
+
+    private static Map<String, String> BuildRussianLocale() {
+        Map<String, String> map = new HashMap<>();
+
+        map.put("item.trowels." + Trowels.TROWEL.get(), "Мастерок");
+        map.put("desc.trowels.trowel",
+                "Мастерок размещает случайный блок из хотбара при использовании.");
+        map.put("desc.trowels.trowel.destroy_recent",
+                "Клик по недавно установленному (5 последних) мастерком блоку позволит его быстро добыть.");
+
+        map.put("item.trowels." + Trowels.REFILL_UPGRADE.get(), "Пополняющее улучшение");
+        map.put("trowel_upgrade.refill",
+                "Пополняющее улучшение");
+        map.put("trowel_upgrade.refill.desc",
+                "Соедините с мастерком в наковальне, чтобы пополнять заканчивающиеся в хотбаре стаки из инвентаря.");
+
+        map.put("tooltip.trowels.upgrades", "Улучшения:");
+
+        map.put("creative_tab.trowels", "Trowels");
+
+        return map;
     }
 
     private static final class ItemModels extends ItemModelProvider {
@@ -82,23 +131,17 @@ public class TrowelsDatagen {
 
     private static final class Lang extends LanguageProvider {
 
-        public Lang(DataGenerator gen) {
-            super(gen.getPackOutput(), Trowels.MOD_ID, "en_us");
+        private final Map<String, String> locale;
+
+        public Lang(DataGenerator gen, String langCode, Map<String, String> locale) {
+            super(gen.getPackOutput(), Trowels.MOD_ID, langCode);
+            this.locale = locale;
         }
 
         @Override
         protected void addTranslations() {
-            add(Trowels.TROWEL.get(), "Trowel");
-            add("desc.trowels.trowel", "When right-clicked, the trowel will place a random item from your hotbar.");
-            add("desc.trowels.trowel.destroy_recent", "When clicking a block that has been recently (last 5 blocks) placed by the trowel, you can mine it with it.");
-
-            add(Trowels.REFILL_UPGRADE.get(), "Refill Upgrade");
-            add("trowel_upgrade.refill", "Refill Upgrade");
-            add("trowel_upgrade.refill.desc", "Combine with a Trowel in an anvil in order to make it refill the slot of the used block after placement, from your inventory.");
-
-            add("tooltip.trowels.upgrades", "Upgrades:");
-
-            add("creative_tab.trowels", "Trowels");
+            for (Map.Entry<String, String> entry : locale.entrySet())
+                add(entry.getKey(), entry.getValue());
         }
     }
 }

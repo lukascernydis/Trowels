@@ -1,0 +1,10 @@
+{
+  "creative_tab.trowels": "Trowels",
+  "desc.trowels.trowel": "Мастерок размещает случайный блок из хотбара при использовании.",
+  "desc.trowels.trowel.destroy_recent": "Клик по недавно установленному (5 последних) мастерком блоку позволит его быстро добыть.",
+  "item.trowels.refill_upgrade": "Пополняющее улучшение",
+  "item.trowels.trowel": "Мастерок",
+  "tooltip.trowels.upgrades": "Улучшения:",
+  "trowel_upgrade.refill": "Пополняющее улучшение",
+  "trowel_upgrade.refill.desc": "Соедините с мастерком в наковальне, чтобы пополнять заканчивающиеся в хотбаре стаки из инвентаря."
+}
