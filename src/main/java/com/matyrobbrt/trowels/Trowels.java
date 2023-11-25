@@ -55,7 +55,7 @@ public class Trowels {
             modEventBus.register(TrowelsDatagen.class);
         }
 
-        MinecraftForge.EVENT_BUS.addListener(TrowelItem::onDestroySpeed);
+        MinecraftForge.EVENT_BUS.addListener(TrowelItem::onHit);
         MinecraftForge.EVENT_BUS.addListener(this::handleAnvilUpdate);
     }
 

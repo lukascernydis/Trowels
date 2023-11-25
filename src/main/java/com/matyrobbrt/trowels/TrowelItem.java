@@ -13,29 +13,26 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ToolAction;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.client.event.sound.SoundEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
@@ -51,15 +48,6 @@ public class TrowelItem extends Item {
         this.consumesDurability = consumesDurability;
     }
 
-    @Override
-    public boolean isCorrectToolForDrops(BlockState state) {
-        return canDestroyPlacedBlock();
-    }
-
-    public boolean canDestroyPlacedBlock() {
-        return true;
-    }
-
     public boolean acceptsUpgrades() {
         return true;
     }
@@ -69,50 +57,67 @@ public class TrowelItem extends Item {
     }
 
     @Override
-    public boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
-        return canDestroyPlacedBlock();
-    }
-
-    @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
         stack.hurtAndBreak(1, entity, p -> p.broadcastBreakEvent(entity.getUsedItemHand()));
         stack.getOrCreateTag().getList("PlacedBlockPos", Tag.TAG_COMPOUND).remove(serializePos(pos, level));
         return false;
     }
 
-    static void onDestroySpeed(final PlayerEvent.BreakSpeed event) {
-        final ItemStack useItem = event.getEntity().getItemInHand(event.getEntity().getUsedItemHand());
-        if (useItem.getItem() instanceof TrowelItem item && item.canDestroyPlacedBlock()) {
-            if (!event.getEntity().isShiftKeyDown()) {
-                event.setCanceled(true);
+    static void onHit(final PlayerInteractEvent.LeftClickBlock e) {
+        final Level level = e.getLevel();
+        if (level.isClientSide)
+            return;
+
+        final Player player = e.getEntity();
+        final ItemStack useItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+        if (player.isCreative() || !player.isShiftKeyDown())
+            return;
+        if (!(useItem.getItem() instanceof TrowelItem))
+            return;
+
+        final BlockPos hitPos = e.getPos();
+        final BlockState block = level.getBlockState(hitPos);
+        final CompoundTag nbtPos = serializePos(hitPos, level);
+        final CompoundTag tag = useItem.getOrCreateTag();
+
+        ListTag clickedPoses = useItem.getOrCreateTag().getList("PlacedBlockPos", Tag.TAG_COMPOUND);
+        Iterator<Tag> clickedPosesIterator = clickedPoses.iterator();
+        while (clickedPosesIterator.hasNext()) {
+            Tag pos = clickedPosesIterator.next();
+            if (pos.equals(nbtPos)) {
+                clickedPosesIterator.remove();
+                ItemStack drop = new ItemStack(block.getBlock().asItem());
+                if (!player.addItem(drop)) {
+                    if (!drop.isEmpty())
+                        player.drop(drop, false);
+                }
+                else
+                    level.playSeededSound(null,
+                            player.getX(), player.getY(), player.getZ(),
+                            SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS,
+                            0.4f, 2.0f, 0);
+                level.destroyBlock(hitPos, false);
+                tag.put("PlacedBlockPos", clickedPoses);
                 return;
             }
-
-            event.getPosition().ifPresentOrElse(pos -> {
-                final ListTag clickedPoses = useItem.getOrCreateTag().getList("PlacedBlockPos", Tag.TAG_COMPOUND);
-                final CompoundTag nbtPos = serializePos(pos, event.getEntity().level());
-                if (clickedPoses.contains(nbtPos)) {
-                    event.setNewSpeed(18f);
-                } else {
-                    event.setCanceled(true);
-                }
-            }, () -> event.setCanceled(true));
         }
     }
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
         final Player player = context.getPlayer();
-        if (player == null) return InteractionResult.FAIL;
-
-        final InteractionHand hand = context.getHand();
+        if (player == null)
+            return InteractionResult.FAIL;
 
         final IntList targets = new IntArrayList();
         for (int i = 0; i < Inventory.getSelectionSize(); i++) {
             if (isValidTarget(player.getInventory().getItem(i))) targets.add(i);
         }
-        if (targets.isEmpty()) return InteractionResult.PASS;
 
+        if (targets.isEmpty())
+            return InteractionResult.PASS;
+
+        final InteractionHand hand = context.getHand();
         final ItemStack trowel = player.getItemInHand(hand);
         final CompoundTag tag = trowel.getOrCreateTag();
         final Random rand = new Random(tag.getLong("Seed"));
@@ -121,24 +126,33 @@ public class TrowelItem extends Item {
         final int roll = targets.getInt(rand.nextInt(targets.size()));
         final ItemStack target = player.getInventory().getItem(roll);
         final int count = target.getCount();
+        final BlockPos placePos =
+                context.getLevel().getBlockState(context.getClickedPos()).canBeReplaced()
+                        ? context.getClickedPos()
+                        : context.getClickedPos().relative(context.getClickedFace());
+
 
         final InteractionResult result = placeBlock(roll, target, context);
+
+        if (result != InteractionResult.CONSUME)
+            return result;
+
         getUpgrades(trowel).forEach(upgrade -> upgrade.afterPlace(trowel, context, roll, target));
 
-        if (player.getAbilities().instabuild) target.setCount(count);
+        if (player.getAbilities().instabuild)
+            target.setCount(count);
 
         if (result.consumesAction() && consumesDurability.getAsBoolean()) {
             context.getItemInHand().hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
         }
 
-        final BlockPos placePos = context.getClickedPos().relative(context.getClickedFace());
         final ListTag clickedPoses = tag.getList("PlacedBlockPos", Tag.TAG_COMPOUND);
-        if (clickedPoses.size() > 5) {
-            clickedPoses.remove(0);
-        }
+        final CompoundTag posSer = serializePos(placePos, context.getLevel(), target.getItem().toString());
+        if (!clickedPoses.contains(posSer))
+            clickedPoses.add(posSer);
 
-        final CompoundTag posSer = serializePos(placePos, context.getLevel());
-        if (!clickedPoses.contains(posSer)) clickedPoses.add(posSer);
+        if (clickedPoses.size() > 5)
+            clickedPoses.remove(0);
 
         tag.put("PlacedBlockPos", clickedPoses);
 
@@ -207,11 +221,17 @@ public class TrowelItem extends Item {
     }
 
     private static CompoundTag serializePos(BlockPos pos, Level level) {
+        return serializePos(pos, level, null);
+    }
+
+    private static CompoundTag serializePos(BlockPos pos, Level level, @Nullable String block) {
         final CompoundTag tag = new CompoundTag();
         tag.putInt("x", pos.getX());
         tag.putInt("y", pos.getY());
         tag.putInt("z", pos.getZ());
         tag.putString("dimension", level.dimension().location().toString());
+        tag.putString("block",
+                Objects.requireNonNullElseGet(block, () -> level.getBlockState(pos).getBlock().asItem().toString()));
         return tag;
     }
 
