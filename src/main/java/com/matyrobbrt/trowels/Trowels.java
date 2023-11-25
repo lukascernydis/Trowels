@@ -34,6 +34,7 @@ public class Trowels {
             Config.TROWEL_DURABILITY::get, Config.TROWEL_USES_DURABILITY::get));
 
     public static final RegistryObject<Item> REFILL_UPGRADE = ITEMS.register("refill_upgrade", () -> new UpgradeItem(new Item.Properties(), TrowelUpgrade.REFILL));
+    public static final RegistryObject<Item> BREAK_UPGRADE = ITEMS.register("break_upgrade", () -> new UpgradeItem(new Item.Properties(), TrowelUpgrade.BREAK));
 
     public Trowels() {
         TABS.register(MOD_ID, () -> CreativeModeTab.builder()
@@ -42,7 +43,8 @@ public class Trowels {
                 .displayItems((params, output) -> output
                         .acceptAll(List.of(
                                 TROWEL.get().getDefaultInstance(),
-                                REFILL_UPGRADE.get().getDefaultInstance()
+                                REFILL_UPGRADE.get().getDefaultInstance(),
+                                BREAK_UPGRADE.get().getDefaultInstance()
                         ))).build());
 
         final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -60,16 +62,20 @@ public class Trowels {
     }
 
     private void handleAnvilUpdate(final AnvilUpdateEvent event) {
-        if (event.getLeft().getItem() instanceof TrowelItem trowelItem && trowelItem.acceptsUpgrades() && event.getRight().getItem() instanceof UpgradeItem upgradeItem) {
+        if (event.getLeft().getItem() instanceof TrowelItem
+                && TrowelItem.acceptsUpgrades()
+                && event.getRight().getItem() instanceof UpgradeItem upgradeItem) {
             event.setCost(1);
-            final var existingUpgrades = trowelItem.getUpgrades(event.getLeft());
-            if (existingUpgrades.contains(upgradeItem.getUpgrade()) || !trowelItem.acceptsUpgrade(event.getLeft(), upgradeItem.getUpgrade())) {
+
+            final var existingUpgrades = TrowelItem.getUpgrades(event.getLeft());
+            if (existingUpgrades.contains(upgradeItem.getUpgrade())
+                    || !TrowelItem.acceptsUpgrade(event.getLeft(), upgradeItem.getUpgrade())) {
                 event.setCanceled(true);
                 return;
             }
 
             final ItemStack output = event.getLeft().copy();
-            trowelItem.getUpgrades(output).add(upgradeItem.getUpgrade());
+            TrowelItem.getUpgrades(output).add(upgradeItem.getUpgrade());
             event.setOutput(output);
 
             event.setCost(1 + existingUpgrades.size() * 3);

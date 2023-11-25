@@ -48,18 +48,18 @@ public class TrowelItem extends Item {
         this.consumesDurability = consumesDurability;
     }
 
-    public boolean acceptsUpgrades() {
+    public static boolean acceptsUpgrades() {
         return true;
     }
 
-    public boolean acceptsUpgrade(ItemStack stack, TrowelUpgrade upgrade) {
+    public static boolean acceptsUpgrade(ItemStack stack, TrowelUpgrade upgrade) {
         return acceptsUpgrades();
     }
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity entity) {
         stack.hurtAndBreak(1, entity, p -> p.broadcastBreakEvent(entity.getUsedItemHand()));
-        stack.getOrCreateTag().getList("PlacedBlockPos", Tag.TAG_COMPOUND).remove(serializePos(pos, level));
+        //stack.getOrCreateTag().getList("PlacedBlockPos", Tag.TAG_COMPOUND).remove(serializePos(pos, level));
         return false;
     }
 
@@ -79,6 +79,9 @@ public class TrowelItem extends Item {
         final BlockState block = level.getBlockState(hitPos);
         final CompoundTag nbtPos = serializePos(hitPos, level);
         final CompoundTag tag = useItem.getOrCreateTag();
+
+        if (!getUpgrades(useItem).contains(TrowelUpgrade.BREAK))
+            return;
 
         ListTag clickedPoses = useItem.getOrCreateTag().getList("PlacedBlockPos", Tag.TAG_COMPOUND);
         Iterator<Tag> clickedPosesIterator = clickedPoses.iterator();
@@ -137,14 +140,17 @@ public class TrowelItem extends Item {
         if (result != InteractionResult.CONSUME)
             return result;
 
-        getUpgrades(trowel).forEach(upgrade -> upgrade.afterPlace(trowel, context, roll, target));
-
         if (player.getAbilities().instabuild)
             target.setCount(count);
 
         if (result.consumesAction() && consumesDurability.getAsBoolean()) {
             context.getItemInHand().hurtAndBreak(1, player, p -> p.broadcastBreakEvent(hand));
         }
+
+        Collection<TrowelUpgrade> upgrades = getUpgrades(trowel);
+        upgrades.forEach(upgrade -> upgrade.afterPlace(trowel, context, roll, target));
+        if (!upgrades.contains(TrowelUpgrade.BREAK))
+            return result;
 
         final ListTag clickedPoses = tag.getList("PlacedBlockPos", Tag.TAG_COMPOUND);
         final CompoundTag posSer = serializePos(placePos, context.getLevel(), target.getItem().toString());
@@ -159,7 +165,7 @@ public class TrowelItem extends Item {
         return result;
     }
 
-    public Collection<TrowelUpgrade> getUpgrades(ItemStack stack) {
+    public static Collection<TrowelUpgrade> getUpgrades(ItemStack stack) {
         final CompoundTag tag = stack.getOrCreateTag();
         final ListTag upgradesTag = tag.contains("Upgrades") ? tag.getList("Upgrades", Tag.TAG_STRING) : Util.make(new ListTag(), it -> tag.put("Upgrades", it));
         final EnumSet<TrowelUpgrade> upgrades = EnumSet.noneOf(TrowelUpgrade.class);
@@ -199,14 +205,21 @@ public class TrowelItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         components.add(Component.translatable("desc.trowels.trowel").withStyle(ChatFormatting.AQUA));
-        components.add(Component.translatable("desc.trowels.trowel.destroy_recent").withStyle(ChatFormatting.GOLD));
 
         final var upgrades = getUpgrades(stack);
-        if (!upgrades.isEmpty()) {
-            components.add(Component.literal(" "));
-            components.add(Component.translatable("tooltip.trowels.upgrades"));
-            upgrades.forEach(up -> components.add(up.getName()));
+        if (upgrades.isEmpty()) {
+            components.add(Component.translatable("desc.trowels.trowel.upgrades")
+                    .withStyle(ChatFormatting.GOLD));
+            return;
         }
+
+        if (upgrades.contains(TrowelUpgrade.BREAK))
+            components.add(Component.translatable("desc.trowels.trowel.destroy_recent")
+                    .withStyle(ChatFormatting.GOLD));
+
+        components.add(Component.literal(" "));
+        components.add(Component.translatable("tooltip.trowels.upgrades"));
+        upgrades.forEach(up -> components.add(up.getName()));
     }
 
     @Override
@@ -225,6 +238,7 @@ public class TrowelItem extends Item {
     }
 
     private static CompoundTag serializePos(BlockPos pos, Level level, @Nullable String block) {
+        // GET DEFAULT INSTANCE
         final CompoundTag tag = new CompoundTag();
         tag.putInt("x", pos.getX());
         tag.putInt("y", pos.getY());

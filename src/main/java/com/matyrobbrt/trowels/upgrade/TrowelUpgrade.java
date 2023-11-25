@@ -42,11 +42,20 @@ public enum TrowelUpgrade {
         public Component getDescription() {
             return Component.translatable("trowel_upgrade.refill.desc");
         }
+    },
+    BREAK {
+        @Override
+        public Component getName() {
+            return Component.translatable("trowel_upgrade.break").withStyle(ChatFormatting.GREEN);
+        }
+
+        @Override
+        public Component getDescription() {
+            return Component.translatable("trowel_upgrade.break.desc");
+        }
     };
 
-    public void afterPlace(ItemStack trowel, UseOnContext context, int selectedSlot, ItemStack placedBlock) {
-
-    }
+    public void afterPlace(ItemStack trowel, UseOnContext context, int selectedSlot, ItemStack placedBlock) {}
 
     public abstract Component getName();
     public abstract Component getDescription();
