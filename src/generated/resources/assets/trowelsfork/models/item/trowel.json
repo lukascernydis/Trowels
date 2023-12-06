@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "trowelsfork:item/trowel_base",
+    "layer1": "trowelsfork:item/trowel_handle"
+  }
+}

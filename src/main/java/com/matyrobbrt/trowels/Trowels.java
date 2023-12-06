@@ -24,7 +24,7 @@ import java.util.List;
 
 @Mod(Trowels.MOD_ID)
 public class Trowels {
-    public static final String MOD_ID = "trowels";
+    public static final String MOD_ID = "trowelsfork";
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MOD_ID);
 

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "trowelsfork:item/refill_upgrade"
+  }
+}

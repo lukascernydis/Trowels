@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "trowels:item/trowel_base",
-    "layer1": "trowels:item/trowel_handle"
-  }
-}

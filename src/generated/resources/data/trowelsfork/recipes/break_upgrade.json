@@ -1,7 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "equipment",
+  "category": "misc",
   "key": {
+    "H": {
+      "item": "minecraft:iron_pickaxe"
+    },
     "I": {
       "tag": "forge:ingots/iron"
     },
@@ -10,12 +13,12 @@
     }
   },
   "pattern": [
-    "  I",
-    " I ",
-    "S  "
+    "H",
+    "I",
+    "S"
   ],
   "result": {
-    "item": "trowels:trowel"
+    "item": "trowelsfork:break_upgrade"
   },
   "show_notification": true
 }

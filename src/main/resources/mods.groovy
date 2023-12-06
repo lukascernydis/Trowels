@@ -3,16 +3,16 @@ ModsDotGroovy.make {
     loaderVersion = '[43,)'
 
     license = 'MIT'
-    issueTrackerUrl = 'https://github.com/MatyrobbrtMods/Trowels/issues'
+    issueTrackerUrl = 'https://github.com/lukascernydis/Trowels/issues'
 
     mod {
-        modId = 'trowels'
-        displayName = 'Trowels'
+        modId = 'trowelsfork'
+        displayName = 'Trowels Fork'
 
         version = this.version
 
-        description = 'A mod adding trowels used for decoration.'
-        authors = ['Matyrobbrt']
+        description = 'Fork of the Trowels mod with some fixes.'
+        authors = ['Matyrobbrt', 'CatAndPaste', 'Luciano']
 
         logoFile = 'trowels.png'
 

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "trowels:trowel"
+        "recipe": "trowelsfork:break_upgrade"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "trowels:trowel"
+      "trowelsfork:break_upgrade"
     ]
   },
   "sends_telemetry_event": false

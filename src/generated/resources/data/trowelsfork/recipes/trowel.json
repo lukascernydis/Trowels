@@ -1,10 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
+  "category": "equipment",
   "key": {
-    "H": {
-      "item": "minecraft:hopper"
-    },
     "I": {
       "tag": "forge:ingots/iron"
     },
@@ -13,12 +10,12 @@
     }
   },
   "pattern": [
-    "H",
-    "I",
-    "S"
+    "  I",
+    " I ",
+    "S  "
   ],
   "result": {
-    "item": "trowels:refill_upgrade"
+    "item": "trowelsfork:trowel"
   },
   "show_notification": true
 }

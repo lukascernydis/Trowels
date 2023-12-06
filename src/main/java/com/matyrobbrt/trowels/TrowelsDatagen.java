@@ -18,7 +18,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -40,7 +39,7 @@ public class TrowelsDatagen {
     private static Map<String, String> BuildEnglishLocale() {
         Map<String, String> map = new HashMap<>();
 
-        map.put("item.trowels." + Trowels.TROWEL.get(), "Trowel");
+        map.put("item." + Trowels.MOD_ID + "." + Trowels.TROWEL.get(), "Trowel");
         map.put("desc.trowels.trowel", "When right-clicked, the trowel will place a random block from your hotbar.");
         map.put("desc.trowels.trowel.upgrades",
                 "Can be upgraded by combining it with an upgrade item in anvil.");
@@ -48,8 +47,8 @@ public class TrowelsDatagen {
                 "You can break blocks which have been recently (5 latest) placed by the trowel instantly, " +
                         "they are returned to your inventory.");
 
-        map.put("item.trowels." + Trowels.REFILL_UPGRADE.get(), "Refill Upgrade");
-        map.put("item.trowels." + Trowels.BREAK_UPGRADE.get(), "Break Upgrade");
+        map.put("item." + Trowels.MOD_ID + "." + Trowels.REFILL_UPGRADE.get(), "Refill Upgrade");
+        map.put("item." + Trowels.MOD_ID + "." + Trowels.BREAK_UPGRADE.get(), "Break Upgrade");
         map.put("trowel_upgrade.refill", "Refill Upgrade");
         map.put("trowel_upgrade.break", "Break Upgrade");
         map.put("trowel_upgrade.refill.desc",
@@ -69,7 +68,7 @@ public class TrowelsDatagen {
     private static Map<String, String> BuildRussianLocale() {
         Map<String, String> map = new HashMap<>();
 
-        map.put("item.trowels." + Trowels.TROWEL.get(), "Мастерок");
+        map.put("item." + Trowels.MOD_ID + "." + Trowels.TROWEL.get(), "Мастерок");
         map.put("desc.trowels.trowel",
                 "Мастерок размещает случайный блок из хотбара при использовании.");
         map.put("desc.trowels.trowel.upgrades",
@@ -78,8 +77,8 @@ public class TrowelsDatagen {
                 "Удар по недавно установленному (5 последних) мастерком блоку с зажатым Shift " +
                         "позволит его моментально добыть.");
 
-        map.put("item.trowels." + Trowels.REFILL_UPGRADE.get(), "Пополняющее улучшение");
-        map.put("item.trowels." + Trowels.BREAK_UPGRADE.get(), "Добывающее улучшение");
+        map.put("item." + Trowels.MOD_ID + "." + Trowels.REFILL_UPGRADE.get(), "Пополняющее улучшение");
+        map.put("item." + Trowels.MOD_ID + "." + Trowels.BREAK_UPGRADE.get(), "Добывающее улучшение");
         map.put("trowel_upgrade.refill", "Пополняющее улучшение");
         map.put("trowel_upgrade.break", "Добывающее улучшение");
         map.put("trowel_upgrade.refill.desc",
@@ -107,8 +106,8 @@ public class TrowelsDatagen {
 
             getBuilder(Trowels.TROWEL.getId().toString())
                     .parent(itemParent)
-                    .texture("layer0", new ResourceLocation("trowels", "item/trowel_base"))
-                    .texture("layer1", new ResourceLocation("trowels", "item/trowel_handle"));
+                    .texture("layer0", new ResourceLocation(Trowels.MOD_ID, "item/trowel_base"))
+                    .texture("layer1", new ResourceLocation(Trowels.MOD_ID, "item/trowel_handle"));
 
             basicItem(Trowels.REFILL_UPGRADE.get());
             basicItem(Trowels.BREAK_UPGRADE.get());
